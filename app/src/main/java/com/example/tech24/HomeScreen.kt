@@ -29,6 +29,8 @@ import com.example.tech24.model.Case
 import androidx.compose.runtime.LaunchedEffect
 import com.example.tech24.model.toCase
 import com.example.tech24.components.CaseDetailsDialog
+
+
 @Composable
 fun HomeScreen(
     onLogout: () -> Unit
@@ -44,6 +46,9 @@ fun HomeScreen(
     val token = prefs.getString("token", "") ?: ""
     print(token)
     val first_name = prefs.getString("first_name", "User") ?: ""
+    var casesPerPage by remember {
+        mutableStateOf(20)
+    }
     val last_name = prefs.getString("last_name", "") ?: ""
     val fullName = "$first_name $last_name".trim()
     var search by remember {
@@ -85,7 +90,9 @@ fun HomeScreen(
 
                 val response = Tech24Api.service.getCallEntries(
                     "Bearer $token",
-                    page = page
+                    page = page,
+                    search = search.ifBlank { null },
+                    perPage = casesPerPage
                 )
 
                 when {
@@ -138,7 +145,7 @@ fun HomeScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(token) {
 
         if (token.isBlank()) {
             onLogout()
@@ -146,6 +153,16 @@ fun HomeScreen(
         }
 
         loadPage(1)
+    }
+
+    LaunchedEffect(search) {
+
+        kotlinx.coroutines.delay(500)
+
+        if (search.isNotEmpty()) {
+            currentPage = 1
+            loadPage(1)
+        }
     }
 
     Column(
@@ -157,6 +174,8 @@ fun HomeScreen(
             search = search,
             onSearchChange = {
                 search = it
+                currentPage = 1
+                loadPage(1)
             },
             onLogout = {
                 scope.launch {
@@ -214,11 +233,11 @@ fun HomeScreen(
                     .padding(32.dp),
                 contentAlignment = Alignment.Center
             ) {
-
                 CircularProgressIndicator()
             }
 
         } else {
+
             LazyColumn(
                 contentPadding = PaddingValues(16.dp),
                 modifier = Modifier.weight(1f)
@@ -238,19 +257,18 @@ fun HomeScreen(
                     )
                 }
             }
-            if (lastPage > 1) {
 
-                Pagination(
-                    currentPage = currentPage,
-                    lastPage = lastPage,
-                    onPageSelected = { page ->
-                        loadPage(page)
-                    }
-                )
-            }
+            CasesPerPage(
+                casesPerPage = casesPerPage,
+                onCasesPerPageChanged = { newValue ->
+
+                    casesPerPage = newValue
+                    currentPage = 1
+
+                    loadPage(1)
+                }
+            )
         }
-
-
 
         if (selectedCase != null) {
 

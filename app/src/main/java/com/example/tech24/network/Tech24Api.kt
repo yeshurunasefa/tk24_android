@@ -17,11 +17,12 @@ import retrofit2.http.Query
 private const val BASE_URL = "https://api.tech24et.com/api/"
 
 private val logger = HttpLoggingInterceptor().apply {
-    level = HttpLoggingInterceptor.Level.BODY
+    level = HttpLoggingInterceptor.Level.BASIC
 }
 
 private val client = OkHttpClient.Builder()
     .addInterceptor(logger)
+    .retryOnConnectionFailure(true)
     .build()
 
 private val retrofit = Retrofit.Builder()
@@ -34,10 +35,10 @@ interface Tech24ApiService {
 
     @GET("callentries")
     suspend fun getCallEntries(
-        @Header("Authorization")
-        bearer: String,
-        @Query("page")
-        page: Int
+        @Header("Authorization") token: String,
+        @Query("page") page: Int,
+        @Query("search") search: String? = null,
+        @Query("per_page") perPage: Int = 20
     ): Response<CallEntriesResponse>
 
     @POST("login-with-device")
