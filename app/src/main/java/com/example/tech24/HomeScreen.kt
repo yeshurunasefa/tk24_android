@@ -29,7 +29,7 @@ import com.example.tech24.model.Case
 import androidx.compose.runtime.LaunchedEffect
 import com.example.tech24.model.toCase
 import com.example.tech24.components.CaseDetailsDialog
-
+import com.example.tech24.components.CasesPerPage
 
 @Composable
 fun HomeScreen(
@@ -268,7 +268,6 @@ fun HomeScreen(
                     loadPage(1)
                 }
             )
-        }
 
         if (selectedCase != null) {
 
@@ -285,4 +284,4 @@ fun HomeScreen(
             )
         }
     }
-}
+}}

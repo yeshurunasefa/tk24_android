@@ -1,4 +1,4 @@
-package com.example.tech24
+package com.example.tech24.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
