@@ -43,7 +43,6 @@ fun DashboardHeader(
             )
     ) {
 
-        // Search + profile
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically

@@ -28,6 +28,7 @@ fun CasesPerPage(
     )
 
     Box {
+
         OutlinedButton(
             onClick = {
                 expanded = true
@@ -47,7 +48,9 @@ fun CasesPerPage(
                 expanded = false
             }
         ) {
+
             options.forEach { option ->
+
                 DropdownMenuItem(
                     text = {
                         Text("$option Cases")

@@ -11,25 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.tech24.model.Case
-import com.example.tech24.model.CaseStatus
 
 @Composable
 fun DashboardStats(
-    cases: List<Case>
+    completedCases: Int,
+    ongoingCases: Int
 ) {
-
-    val completedCount = cases.count {
-        it.status == CaseStatus.COMPLETED
-    }
-
-    val pendingCount = cases.count {
-        it.status == CaseStatus.PENDING
-    }
-
-    val ongoingCount = cases.count {
-        it.status == CaseStatus.ONGOING
-    }
 
     Column(
         modifier = Modifier
@@ -52,13 +39,13 @@ fun DashboardStats(
 
             StatsCard(
                 title = "Completed",
-                value = completedCount.toString(),
+                value = completedCases.toString(),
                 modifier = Modifier.weight(1f)
             )
 
             StatsCard(
                 title = "Ongoing",
-                value = ongoingCount.toString(),
+                value = ongoingCases.toString(),
                 modifier = Modifier.weight(1f)
             )
         }
