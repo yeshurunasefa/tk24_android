@@ -1,20 +1,24 @@
 package com.example.tech24
-
 import android.Manifest
 import android.app.Activity
 import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,156 +40,106 @@ import com.example.tech24.model.toCase
 import com.example.tech24.network.Tech24Api
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-
 @Composable
 fun HomeScreen(
     onLogout: () -> Unit
 ) {
-
     val context = LocalContext.current
     val activity = context as Activity
     val scope = rememberCoroutineScope()
-
     val locationPermissionLauncher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission()
         ) { granted ->
-
             if (!granted) {
                 activity.finishAffinity()
             }
         }
-
     val prefs = context.getSharedPreferences(
         "tech24",
         Context.MODE_PRIVATE
     )
-
     val token =
         prefs.getString("token", "") ?: ""
-
     val first_name =
         prefs.getString("first_name", "User") ?: "User"
-
     val last_name =
         prefs.getString("last_name", "") ?: ""
-
     val fullName =
         "$first_name $last_name".trim()
-
-
+    // state
     var casesPerPage by remember {
-        mutableStateOf(20)
+        mutableStateOf(10)
     }
-
     var search by remember {
         mutableStateOf("")
     }
-
     var selectedCase by remember {
         mutableStateOf<Case?>(null)
     }
-
     var cases by remember {
         mutableStateOf<List<Case>>(emptyList())
     }
-
     var isLoading by remember {
         mutableStateOf(false)
     }
-
     var isRefreshing by remember {
         mutableStateOf(false)
     }
-
     var errorMessage by remember {
         mutableStateOf<String?>(null)
     }
-
     var currentPage by remember {
         mutableStateOf(1)
     }
-
-    var totalCases by remember {
-        mutableStateOf(0)
-    }
-
-    var completedCases by remember {
-        mutableStateOf(0)
-    }
-
-    var ongoingCases by remember {
-        mutableStateOf(0)
-    }
-
     var lastPage by remember {
         mutableStateOf(1)
     }
-
+    var totalCases by remember {
+        mutableStateOf(0)
+    }
+    var completedCases by remember {
+        mutableStateOf(0)
+    }
+    var ongoingCases by remember {
+        mutableStateOf(0)
+    }
+    // load cases
     suspend fun loadPage(
         page: Int,
-        perPage: Int = casesPerPage
+        perPage: Int
     ) {
-
         errorMessage = null
-
         try {
-            // it's for debugging bro, nothing nerdy
-            println("page: $page")
-            println("per page: $perPage")
-            println("search: ${search.ifBlank { "none" }}")
-
             val response =
                 Tech24Api.service.getCallEntries(
                     "Bearer $token",
                     page = page,
-                    search = search.ifBlank { null },
+                    search = search.ifBlank {
+                        null
+                    },
                     perPage = perPage
                 )
-
             when {
-
                 response.isSuccessful -> {
-
                     val data = response.body()
-
                     if (data != null) {
-
                         val loadedCases =
                             data.data.map {
                                 it.toCase()
                             }
-
                         cases = loadedCases
-
                         currentPage =
-                            data.meta?.current_page ?: page
-
+                            data.meta?.current_page
+                                ?: page
                         lastPage =
-                            data.meta?.last_page ?: 1
-
+                            data.meta?.last_page
+                                ?: 1
                         totalCases =
-                            data.meta?.total ?: 0
-
-                        println(
-                            "Cases loaded: ${cases.size}"
-                        )
-
-                        println(
-                            "Current page: $currentPage"
-                        )
-
-                        println(
-                            "Last page: $lastPage"
-                        )
-
-                        println(
-                            "Total cases: $totalCases"
-                        )
+                            data.meta?.total
+                                ?: 0
                     }
                 }
-
                 response.code() == 401 -> {
 
                     prefs.edit()
@@ -194,25 +148,20 @@ fun HomeScreen(
 
                     onLogout()
                 }
-
                 else -> {
-
                     errorMessage =
                         "Failed to load cases (${response.code()})"
-
                     println(errorMessage)
                 }
             }
-
         } catch (e: Exception) {
-
             e.printStackTrace()
-
             errorMessage =
-                e.message ?: "Unable to load cases"
+                e.message
+                    ?: "Unable to load cases"
         }
     }
-
+    // load statistics
     suspend fun loadStatistics() {
 
         try {
@@ -223,17 +172,22 @@ fun HomeScreen(
             var page = 1
             var statisticsLastPage = 1
 
+
             do {
 
-                println("Loading statistics page: $page")
+                println(
+                    "Loading statistics page: $page"
+                )
+
 
                 val response =
                     Tech24Api.service.getCallEntries(
                         "Bearer $token",
                         page = page,
                         search = null,
-                        perPage = casesPerPage
+                        perPage = 100
                     )
+
 
                 if (!response.isSuccessful) {
 
@@ -248,6 +202,7 @@ fun HomeScreen(
                         return
                     }
 
+
                     println(
                         "Statistics request failed: ${response.code()}"
                     )
@@ -255,7 +210,10 @@ fun HomeScreen(
                     return
                 }
 
-                val data = response.body()
+
+                val data =
+                    response.body()
+
 
                 if (data != null) {
 
@@ -264,9 +222,13 @@ fun HomeScreen(
                             it.toCase()
                         }
 
+
                     statisticsCases.forEach { case ->
 
-                        if (case.status == CaseStatus.COMPLETED) {
+                        if (
+                            case.status ==
+                            CaseStatus.COMPLETED
+                        ) {
 
                             completed++
 
@@ -276,20 +238,28 @@ fun HomeScreen(
                         }
                     }
 
+
                     statisticsLastPage =
                         data.meta?.last_page ?: 1
                 }
 
+
                 page++
 
-            } while (page <= statisticsLastPage)
+
+            } while (
+                page <= statisticsLastPage
+            )
 
 
             completedCases = completed
             ongoingCases = ongoing
 
+
             println(
-                "Total: ${completed + ongoing}"
+                "Statistics total: ${
+                    completed + ongoing
+                }"
             )
 
             println(
@@ -310,166 +280,125 @@ fun HomeScreen(
             )
         }
     }
-
+    // location permission
     LaunchedEffect(Unit) {
 
         locationPermissionLauncher.launch(
             Manifest.permission.ACCESS_FINE_LOCATION
         )
     }
-
+    // initial load
     LaunchedEffect(token) {
-
         if (token.isBlank()) {
-
             onLogout()
-
             return@LaunchedEffect
         }
-
         isLoading = true
-
         loadPage(
             page = 1,
             perPage = casesPerPage
         )
-
         loadStatistics()
-
         isLoading = false
     }
-
+    // search
     LaunchedEffect(search) {
-
         delay(500)
-
         if (token.isBlank()) {
             return@LaunchedEffect
         }
-
         currentPage = 1
-
         isLoading = true
-
         loadPage(
             page = 1,
             perPage = casesPerPage
         )
-
         isLoading = false
     }
-
-
+    // ui
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-
+        // header
         DashboardHeader(
             firstName = first_name,
             fullName = fullName,
-
             search = search,
-
             onSearchChange = {
                 search = it
             },
-
             onLogout = {
-
                 scope.launch {
-
                     try {
-
                         Tech24Api.service.logout(
                             "Bearer $token"
                         )
-
                     } catch (e: Exception) {
-
                         e.printStackTrace()
                     }
-
                     prefs.edit()
                         .remove("token")
                         .apply()
-
                     onLogout()
                 }
             }
         )
-
+        // statistics
         DashboardStats(
             completedCases = completedCases,
             ongoingCases = ongoingCases
         )
-
-
         RecentCasesHeader()
-
-
         Spacer(
             modifier = Modifier.height(8.dp)
         )
-
+        // case list
         PullToRefreshBox(
             isRefreshing = isRefreshing,
-
             onRefresh = {
-
                 if (!isRefreshing) {
-
                     scope.launch {
-
                         isRefreshing = true
-
                         currentPage = 1
-
                         loadPage(
                             page = 1,
                             perPage = casesPerPage
                         )
-
                         loadStatistics()
-
                         isRefreshing = false
                     }
                 }
             },
-
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
         ) {
-
             if (isLoading) {
-
                 Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    modifier =
+                        Modifier.fillMaxSize(),
+                    contentAlignment =
+                        Alignment.Center
                 ) {
-
                     CircularProgressIndicator()
                 }
-
             } else {
-
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier =
+                        Modifier.fillMaxSize(),
 
                     contentPadding =
                         PaddingValues(16.dp)
                 ) {
-
                     items(cases) { case ->
-
                         CaseCard(
+
                             case = case,
 
                             onClick = {
                                 selectedCase = case
                             }
                         )
-
                         Spacer(
                             modifier =
                                 Modifier.height(12.dp)
@@ -478,43 +407,76 @@ fun HomeScreen(
                 }
             }
         }
-
-        CasesPerPage(
-
-            casesPerPage = casesPerPage,
-
-            onCasesPerPageChanged = { newValue ->
-
-                casesPerPage = newValue
-
-                currentPage = 1
-
-                scope.launch {
-
-                    isLoading = true
-
-                    loadPage(
-                        page = 1,
-                        perPage = newValue
-                    )
-
-                    loadStatistics()
-
-                    isLoading = false
-                }
+        // pagination
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = 16.dp,
+                    vertical = 8.dp
+                ),
+            horizontalArrangement =
+                Arrangement.SpaceBetween,
+            verticalAlignment =
+                Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    if (currentPage > 1) {
+                        scope.launch {
+                            isLoading = true
+                            loadPage(
+                                page =
+                                    currentPage - 1,
+                                perPage =
+                                    casesPerPage
+                            )
+                            isLoading = false
+                        }
+                    }
+                },
+                enabled =
+                    currentPage > 1 &&
+                            !isLoading
+            ) {
+                Text("Previous")
             }
-        )
-
+            Text(
+                text =
+                    "Page $currentPage of $lastPage"
+            )
+            Button(
+                onClick = {
+                    if (
+                        currentPage < lastPage
+                    ) {
+                        scope.launch {
+                            isLoading = true
+                            loadPage(
+                                page =
+                                    currentPage + 1,
+                                perPage =
+                                    casesPerPage
+                            )
+                            isLoading = false
+                        }
+                    }
+                },
+                enabled =
+                    currentPage < lastPage &&
+                            !isLoading
+            ) {
+                Text("Next")
+            }
+        }
+        // case details
         if (selectedCase != null) {
-
             CaseDetailsDialog(
-
-                case = selectedCase!!,
-
+                case =
+                    selectedCase!!,
                 onDismiss = {
                     selectedCase = null
                 },
-
                 onEndCase = {
                     // needs endpoint
                 }

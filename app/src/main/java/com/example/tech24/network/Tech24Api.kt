@@ -38,7 +38,7 @@ interface Tech24ApiService {
         @Header("Authorization") token: String,
         @Query("page") page: Int,
         @Query("search") search: String? = null,
-        @Query("per_page") perPage: Int = 20
+        @Query("per_page") perPage: Int
     ): Response<CallEntriesResponse>
 
     @POST("login-with-device")
