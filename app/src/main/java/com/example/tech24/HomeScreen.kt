@@ -14,10 +14,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowCircleLeft
+import androidx.compose.material.icons.filled.ArrowCircleRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -26,10 +33,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.tech24.components.CaseCard
 import com.example.tech24.components.CaseDetailsDialog
@@ -92,6 +102,7 @@ fun HomeScreen(
     var currentPage by remember {
         mutableStateOf(1)
     }
+    var isToggled by rememberSaveable { mutableStateOf(false) }
     var lastPage by remember {
         mutableStateOf(1)
     }
@@ -165,21 +176,14 @@ fun HomeScreen(
     suspend fun loadStatistics() {
 
         try {
-
+            //isLoading = true
             var completed = 0
             var ongoing = 0
 
             var page = 1
             var statisticsLastPage = 1
 
-
             do {
-
-                println(
-                    "Loading statistics page: $page"
-                )
-
-
                 val response =
                     Tech24Api.service.getCallEntries(
                         "Bearer $token",
@@ -187,16 +191,11 @@ fun HomeScreen(
                         search = null,
                         perPage = 100
                     )
-
-
                 if (!response.isSuccessful) {
-
                     if (response.code() == 401) {
-
                         prefs.edit()
                             .remove("token")
                             .apply()
-
                         onLogout()
 
                         return
@@ -237,40 +236,27 @@ fun HomeScreen(
                             ongoing++
                         }
                     }
-
-
                     statisticsLastPage =
                         data.meta?.last_page ?: 1
                 }
-
-
                 page++
-
 
             } while (
                 page <= statisticsLastPage
             )
-
-
             completedCases = completed
             ongoingCases = ongoing
-
-
             println(
                 "Statistics total: ${
                     completed + ongoing
                 }"
             )
-
             println(
                 "Completed: $completedCases"
             )
-
             println(
                 "Ongoing: $ongoingCases"
             )
-
-
         } catch (e: Exception) {
 
             e.printStackTrace()
@@ -344,10 +330,19 @@ fun HomeScreen(
             }
         )
         // statistics
-        DashboardStats(
-            completedCases = completedCases,
-            ongoingCases = ongoingCases
-        )
+       // if(isLoading) {
+//            DashboardStats(
+//                completedCases = CircularProgressIndicator(),
+//                ongoingCases = CircularProgressIndicator()
+//            )
+       // }
+       // else {
+            DashboardStats(
+                completedCases = completedCases,
+                ongoingCases = ongoingCases
+            )
+     //   }
+
         RecentCasesHeader()
         Spacer(
             modifier = Modifier.height(8.dp)
@@ -420,7 +415,7 @@ fun HomeScreen(
             verticalAlignment =
                 Alignment.CenterVertically
         ) {
-            Button(
+            IconButton(
                 onClick = {
                     if (currentPage > 1) {
                         scope.launch {
@@ -435,17 +430,22 @@ fun HomeScreen(
                         }
                     }
                 },
+                shape = RoundedCornerShape(2.dp),
                 enabled =
                     currentPage > 1 &&
                             !isLoading
             ) {
-                Text("Previous")
+                Icon(
+                    imageVector = Icons.Filled.ArrowCircleLeft,
+                    contentDescription = "Previous",
+                    modifier = Modifier.size(70.dp, 70.dp)
+                )
             }
             Text(
                 text =
-                    "Page $currentPage of $lastPage"
+                    "$currentPage of $lastPage"
             )
-            Button(
+            IconButton(
                 onClick = {
                     if (
                         currentPage < lastPage
@@ -462,11 +462,16 @@ fun HomeScreen(
                         }
                     }
                 },
+                shape = RoundedCornerShape(2.dp),
                 enabled =
                     currentPage < lastPage &&
                             !isLoading
             ) {
-                Text("Next")
+                Icon(
+                    imageVector = Icons.Filled.ArrowCircleRight,
+                    contentDescription = "Next",
+                    modifier = Modifier.size(70.dp, 70.dp)
+                )
             }
         }
         // case details

@@ -41,7 +41,7 @@ fun SearchBar(
             )
         },
         singleLine = true,
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(4.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color(0xFFFF6200),
             unfocusedBorderColor = Color.LightGray

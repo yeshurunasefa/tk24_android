@@ -25,7 +25,7 @@ fun StatsCard(
         modifier = modifier
             .background(
                 color = Color(0xFFF5F5F5),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(5.dp)
             )
             .padding(14.dp)
     ) {

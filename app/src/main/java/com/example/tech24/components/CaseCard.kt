@@ -30,7 +30,7 @@ fun CaseCard(
             .clickable {
                 onClick()
             },
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(2.dp),
         elevation = CardDefaults.cardElevation(6.dp)
     ) {
 

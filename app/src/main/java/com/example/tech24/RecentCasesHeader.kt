@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 fun RecentCasesHeader(
     onFilterClick: () -> Unit = {}
 ) {
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -25,27 +24,11 @@ fun RecentCasesHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         Text(
             text = "Recent Cases",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
-
-        TextButton(
-            onClick = onFilterClick
-        ) {
-
-            Icon(
-                imageVector = Icons.Outlined.FilterList,
-                contentDescription = null
-            )
-
-            Spacer(modifier = Modifier.width(4.dp))
-
-            Text("Filter")
-        }
-
     }
 
 }

@@ -14,35 +14,30 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun DashboardStats(
-    completedCases: Int,
-    ongoingCases: Int
+    completedCases: Any,
+    ongoingCases: Any
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
     ) {
-
         Text(
             text = "Case Overview",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-
             StatsCard(
                 title = "Completed",
                 value = completedCases.toString(),
                 modifier = Modifier.weight(1f)
             )
-
             StatsCard(
                 title = "Ongoing",
                 value = ongoingCases.toString(),

@@ -138,7 +138,7 @@ fun LoginScreen(
                         Icon(Icons.Outlined.Email, null)
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(2.dp),
                     singleLine = true
                 )
 
@@ -176,7 +176,7 @@ fun LoginScreen(
                         else
                             PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(2.dp),
                     singleLine = true
                 )
 
@@ -217,8 +217,8 @@ fun LoginScreen(
 
                                     val login = response.body()!!
                                     firstName = login.user.first_name.trim()
-                                    println(login.token)
-                                    println(login.user.first_name)
+//                                    println(login.token)
+//                                    println(login.user.first_name)
 
                                     prefs.edit()
                                         .putString("token", login.token).putString("first_name", firstName.trim())
@@ -226,6 +226,7 @@ fun LoginScreen(
                                     if(rememberMe) {
                                         prefs.edit()
                                             .putString("saved_email", email)
+                                            .putString("password", password)
                                             .apply()
                                     } else {
                                         prefs.edit()
@@ -257,7 +258,7 @@ fun LoginScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    shape = RoundedCornerShape(14.dp),
+                    shape = RoundedCornerShape(2.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFFF6200)
                     )
@@ -287,7 +288,7 @@ fun LoginScreen(
         ) {
 
             Card(
-                shape = RoundedCornerShape(24.dp)
+                shape = RoundedCornerShape(5.dp)
             ) {
 
                 Column(
@@ -295,7 +296,7 @@ fun LoginScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Welcome Back!",
+                        text = "Welcome!",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     )

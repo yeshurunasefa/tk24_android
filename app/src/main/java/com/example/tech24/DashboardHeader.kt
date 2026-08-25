@@ -118,8 +118,7 @@ fun DashboardHeader(
         Spacer(
             modifier = Modifier.height(24.dp)
         )
-
-        // Greeting
+        // greeting
         Text(
             text = "Case Tracking Dashboard",
             style = MaterialTheme.typography.headlineSmall,
@@ -132,7 +131,7 @@ fun DashboardHeader(
         )
 
         Text(
-            text = "Welcome back, $firstName",
+            text = "Welcome, $firstName",
             style = MaterialTheme.typography.bodyLarge,
             color = Color.Gray
         )

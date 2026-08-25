@@ -30,6 +30,7 @@ fun CaseDetailsDialog(
 
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(3.dp),
 
         title = {
             Text(
@@ -106,7 +107,7 @@ fun CaseDetailsDialog(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFFF6200)
                     ),
-                    shape = RoundedCornerShape(10.dp)
+                    shape = RoundedCornerShape(2.dp),
                 ) {
                     Text("END CASE")
                 }
@@ -116,7 +117,8 @@ fun CaseDetailsDialog(
         dismissButton = {
 
             Button(
-                onClick = onDismiss
+                onClick = onDismiss,
+                shape = RoundedCornerShape(2.dp),
             ) {
                 Text("CLOSE")
             }
