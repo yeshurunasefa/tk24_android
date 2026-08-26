@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,6 +26,7 @@ import androidx.compose.material.icons.filled.ArrowCircleLeft
 import androidx.compose.material.icons.filled.ArrowCircleRight
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,10 +45,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.example.tech24.components.CaseCard
 import com.example.tech24.components.CaseDetailsDialog
-import com.example.tech24.components.CasesPerPage
+import com.example.tech24.components.MessageDialog
 import com.example.tech24.model.Case
 import com.example.tech24.model.CaseStatus
 import com.example.tech24.model.toCase
@@ -56,6 +62,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     onLogout: () -> Unit
 ) {
+    val dialogState = remember { mutableStateOf("none") }
     val context = LocalContext.current
     val activity = context as Activity
     val scope = rememberCoroutineScope()
@@ -72,6 +79,7 @@ fun HomeScreen(
         Context.MODE_PRIVATE
     )
     val openAlertDialog = remember {mutableStateOf(false)}
+    val openMessageDialog = remember {mutableStateOf((false))}
     val token =
         prefs.getString("token", "") ?: ""
     val first_name =
@@ -177,7 +185,6 @@ fun HomeScreen(
     }
     // load statistics
     suspend fun loadStatistics() {
-
         try {
             //isLoading = true
             var completed = 0
@@ -203,35 +210,24 @@ fun HomeScreen(
 
                         return
                     }
-
-
                     println(
                         "Statistics request failed: ${response.code()}"
                     )
-
                     return
                 }
-
-
                 val data =
                     response.body()
-
-
                 if (data != null) {
 
                     val statisticsCases =
                         data.data.map {
                             it.toCase()
                         }
-
-
                     statisticsCases.forEach { case ->
-
                         if (
                             case.status ==
                             CaseStatus.COMPLETED
                         ) {
-
                             completed++
 
                         } else {
@@ -271,7 +267,6 @@ fun HomeScreen(
     }
     // location permission
     LaunchedEffect(Unit) {
-
         locationPermissionLauncher.launch(
             Manifest.permission.ACCESS_FINE_LOCATION
         )
@@ -346,6 +341,35 @@ fun HomeScreen(
             )
      //   }
 
+        when (dialogState.value) {
+            "closed" -> {
+                Dialog(
+                    onDismissRequest = {
+                        dialogState.value = "none"
+                        scope.launch { loadPage(page = currentPage, perPage = casesPerPage) }
+                        selectedCase = null
+                                       },
+
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .padding(16.dp),
+                        shape = RectangleShape
+                    ) {
+                        Text(
+                            text = "Case Closed Successfully!",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .wrapContentSize(Alignment.Center),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+        }
+
         when{
             openAlertDialog.value -> {
                 CloseConfirmation(
@@ -353,16 +377,18 @@ fun HomeScreen(
                         openAlertDialog.value = false
                     },
                     onConfirmation = {
+                        // network request (close case)
                         openAlertDialog.value = false
+                        dialogState.value = "closed"
+
                         println("Case Closed")
                     },
-                    dialogueText = "Are you sure you want to end the case?",
+                    dialogueText = "Are you sure do you want to end the case?",
                     dialogueTitle = "Confirm End",
                     icon = Icons.Default.Info
                 )
             }
         }
-
         RecentCasesHeader()
         Spacer(
             modifier = Modifier.height(8.dp)
@@ -457,6 +483,7 @@ fun HomeScreen(
             ) {
                 Icon(
                     imageVector = Icons.Filled.ArrowCircleLeft,
+                    tint = Color(0xFFFF6200),
                     contentDescription = "Previous",
                     modifier = Modifier.size(70.dp, 70.dp)
                 )
@@ -489,6 +516,7 @@ fun HomeScreen(
             ) {
                 Icon(
                     imageVector = Icons.Filled.ArrowCircleRight,
+                    tint = Color(0xFFFF6200),
                     contentDescription = "Next",
                     modifier = Modifier.size(70.dp, 70.dp)
                 )
@@ -501,7 +529,6 @@ fun HomeScreen(
                     selectedCase!!,
                 onDismiss = {
                     selectedCase = null
-                    openAlertDialog.value = true
                 },
                 onEndCase = {
                     // needs endpoint
