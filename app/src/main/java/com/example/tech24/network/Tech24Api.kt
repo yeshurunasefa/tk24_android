@@ -8,10 +8,12 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.example.tech24.model.CallEntriesResponse
+import com.example.tech24.model.CloseCaseResponse
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 private const val BASE_URL = "https://api.tech24et.com/api/"
@@ -41,6 +43,11 @@ interface Tech24ApiService {
         @Query("per_page") perPage: Int
     ): Response<CallEntriesResponse>
 
+    @POST("callentries/{case_id}/close")
+    suspend fun closeCase(
+        @Path("case_id") callEntryId : Int,
+        @Header("Authorization") token : String,
+    ): Response<CloseCaseResponse>
     @POST("login-with-device")
     suspend fun login(
         @Body request: LoginRequest

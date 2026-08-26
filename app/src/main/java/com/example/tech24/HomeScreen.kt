@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowCircleLeft
 import androidx.compose.material.icons.filled.ArrowCircleRight
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -48,6 +49,7 @@ import com.example.tech24.model.Case
 import com.example.tech24.model.CaseStatus
 import com.example.tech24.model.toCase
 import com.example.tech24.network.Tech24Api
+import com.example.tech24.ui.theme.CloseConfirmation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 @Composable
@@ -69,6 +71,7 @@ fun HomeScreen(
         "tech24",
         Context.MODE_PRIVATE
     )
+    val openAlertDialog = remember {mutableStateOf(false)}
     val token =
         prefs.getString("token", "") ?: ""
     val first_name =
@@ -102,7 +105,7 @@ fun HomeScreen(
     var currentPage by remember {
         mutableStateOf(1)
     }
-    var isToggled by rememberSaveable { mutableStateOf(false) }
+    //var isToggled by rememberSaveable { mutableStateOf(false) }
     var lastPage by remember {
         mutableStateOf(1)
     }
@@ -343,6 +346,23 @@ fun HomeScreen(
             )
      //   }
 
+        when{
+            openAlertDialog.value -> {
+                CloseConfirmation(
+                    onDismissRequest = {
+                        openAlertDialog.value = false
+                    },
+                    onConfirmation = {
+                        openAlertDialog.value = false
+                        println("Case Closed")
+                    },
+                    dialogueText = "Are you sure you want to end the case?",
+                    dialogueTitle = "Confirm End",
+                    icon = Icons.Default.Info
+                )
+            }
+        }
+
         RecentCasesHeader()
         Spacer(
             modifier = Modifier.height(8.dp)
@@ -481,9 +501,11 @@ fun HomeScreen(
                     selectedCase!!,
                 onDismiss = {
                     selectedCase = null
+                    openAlertDialog.value = true
                 },
                 onEndCase = {
                     // needs endpoint
+                    openAlertDialog.value = true
                 }
             )
         }
