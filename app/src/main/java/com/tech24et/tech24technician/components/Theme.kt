@@ -123,23 +123,23 @@ val AppFont: FontFamily = FontFamily.SansSerif
 val AppTypography = Typography(
     headlineLarge = TextStyle(
         fontFamily = AppFont, fontWeight = FontWeight.Medium,
-        fontSize = 34.sp, lineHeight = 40.sp, letterSpacing = (-0.5).sp,
+        fontSize = 28.sp, lineHeight = 40.sp, letterSpacing = (-0.5).sp,
     ),
     headlineMedium = TextStyle(
         fontFamily = AppFont, fontWeight = FontWeight.Medium,
-        fontSize = 28.sp, lineHeight = 34.sp, letterSpacing = (-0.3).sp,
+        fontSize = 20.sp, lineHeight = 34.sp, letterSpacing = (-0.3).sp,
     ),
     titleLarge = TextStyle(
         fontFamily = AppFont, fontWeight = FontWeight.Medium,
-        fontSize = 22.sp, lineHeight = 28.sp,
+        fontSize = 18.sp, lineHeight = 28.sp,
     ),
     titleMedium = TextStyle(
         fontFamily = AppFont, fontWeight = FontWeight.Medium,
-        fontSize = 17.sp, lineHeight = 24.sp,
+        fontSize = 15.sp, lineHeight = 24.sp,
     ),
     bodyLarge = TextStyle(
         fontFamily = AppFont, fontWeight = FontWeight.Normal,
-        fontSize = 16.sp, lineHeight = 22.sp,
+        fontSize = 13.sp, lineHeight = 22.sp,
     ),
     bodyMedium = TextStyle(
         fontFamily = AppFont, fontWeight = FontWeight.Normal,
